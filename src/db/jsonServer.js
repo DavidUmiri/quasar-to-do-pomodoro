@@ -1,10 +1,10 @@
 import axios from "axios";
 
 // Para Android Studio
-const apiUrl = "http://192.168.1.155:3000";
+// const apiUrl = "http://192.168.1.155:3000";
 
 // Para web
-// const apiUrl = "http://localhost:3000";
+const apiUrl = "http://localhost:9000";
 
 export const getTareas = () => {
   return axios.get(`${apiUrl}/tareas`);
