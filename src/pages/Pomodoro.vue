@@ -47,76 +47,47 @@
         class="action-button"
         rounded
       />
-    </div>
 
-    <!-- Contenedor de configuración -->
-    <!-- <div class="config-container">
-      <q-input
-        v-model="tiempoPomodoro"
-        label="Tiempo de Pomodoro (en minutos)"
-        type="number"
-        @input="actualizarTiempo"
-        min="1"
+      <!-- Botón para borrar los datos -->
+      <q-btn
+        @click="borrarDatos"
+        color="negative"
+        icon="delete"
+        class="action-button"
+        rounded
       />
-      <q-input
-        v-model="tiempoDescansoCorto"
-        label="Tiempo de descanso corto (en minutos)"
-        type="number"
-        @input="actualizarTiempo"
-        min="1"
-      />
-      <q-input
-        v-model="tiempoDescansoLargo"
-        label="Tiempo de descanso largo (en minutos)"
-        type="number"
-        @input="actualizarTiempo"
-        min="1"
-      />
-      <q-btn @click="guardarCambios" color="primary" label="Guardar cambios" />
-    </div> -->
+    </div>
   </div>
 </template>
 
 <script>
-// Importar la función defineComponent de Vue
 import { defineComponent } from "vue";
 
-// Constantes para los tiempos iniciales y de descanso
-const TIEMPO_INICIAL = 0.1;
-const TIEMPO_DESCANSO_CORTO = 0.1;
-const TIEMPO_DESCANSO_LARGO = 0.1;
-
-// Constante para el tiempo de espera en notificaciones
+const TIEMPO_POMODORO = 20 * 60; // 20 minutos
+const TIEMPO_DESCANSO_CORTO = 5 * 60; // 5 minutos
+const TIEMPO_DESCANSO_LARGO = 10 * 60; // 10 minutos
 const TIMEOUT = 100;
 
-// Exportar el componente Vue
 export default defineComponent({
-  // Nombre del componente
   name: "PomodoroComponente",
 
-  // Datos del componente
   data() {
     return {
-      temporizador: TIEMPO_INICIAL * 60,
+      temporizador: TIEMPO_POMODORO, // Establecer tiempo inicial de Pomodoro
       intervaloTemporizador: null,
       pomodoros: 0,
       descansosCortos: 0,
       descansosLargos: 0,
       faseActual: "pomodoro",
-      tiempoPomodoro: TIEMPO_INICIAL,
-      tiempoDescansoCorto: TIEMPO_DESCANSO_CORTO,
-      tiempoDescansoLargo: TIEMPO_DESCANSO_LARGO,
       tiemposOriginales: {
-        tiempoPomodoro: TIEMPO_INICIAL,
+        tiempoPomodoro: TIEMPO_POMODORO,
         tiempoDescansoCorto: TIEMPO_DESCANSO_CORTO,
         tiempoDescansoLargo: TIEMPO_DESCANSO_LARGO,
       },
     };
   },
 
-  // Métodos del componente
   methods: {
-    // Alternar el temporizador entre iniciar/pausar
     alternarTemporizador() {
       if (this.intervaloTemporizador) {
         clearInterval(this.intervaloTemporizador);
@@ -135,18 +106,27 @@ export default defineComponent({
             });
             this.cambiarFase();
           }
+          this.guardarDatos();
         }, 1000);
       }
     },
 
-    // Restablecer el temporizador
     resetearTemporizador() {
       clearInterval(this.intervaloTemporizador);
       this.intervaloTemporizador = null;
-      this.temporizador = this.tiempoPomodoro * 60;
+
+      // Reiniciar el temporizador según la fase actual
+      if (this.faseActual === "pomodoro") {
+        this.temporizador = TIEMPO_POMODORO;
+      } else if (this.faseActual === "descansoCorto") {
+        this.temporizador = TIEMPO_DESCANSO_CORTO;
+      } else if (this.faseActual === "descansoLargo") {
+        this.temporizador = TIEMPO_DESCANSO_LARGO;
+      }
+
+      this.guardarDatos();
     },
 
-    // Formatear el tiempo en minutos y segundos
     formatoTiempo(tiempo) {
       const minutos = Math.floor(tiempo / 60);
       const segundos = tiempo % 60;
@@ -156,67 +136,70 @@ export default defineComponent({
       )}`;
     },
 
-    // Cambiar la fase entre pomodoro, descanso corto y descanso largo
     cambiarFase() {
       switch (this.faseActual) {
         case "pomodoro":
           this.pomodoros++;
           if (this.pomodoros % 4 === 0) {
             this.faseActual = "descansoLargo";
-            this.temporizador = this.tiempoDescansoLargo * 60;
+            this.temporizador = TIEMPO_DESCANSO_LARGO;
           } else {
             this.faseActual = "descansoCorto";
-            this.temporizador = this.tiempoDescansoCorto * 60;
+            this.temporizador = TIEMPO_DESCANSO_CORTO;
           }
           break;
         case "descansoCorto":
           this.descansosCortos++;
           this.faseActual = "pomodoro";
-          this.temporizador = this.tiempoPomodoro * 60;
+          this.temporizador = TIEMPO_POMODORO;
           break;
         case "descansoLargo":
           this.descansosLargos++;
           this.faseActual = "pomodoro";
-          this.temporizador = this.tiempoPomodoro * 60;
+          this.temporizador = TIEMPO_POMODORO;
           break;
         default:
           break;
       }
+      this.guardarDatos();
     },
 
-    // Actualizar el tiempo en el temporizador según la fase actual
-    actualizarTiempo() {
-      this.tiempoPomodoro = Math.max(1, this.tiempoPomodoro);
-      this.tiempoDescansoCorto = Math.max(1, this.tiempoDescansoCorto);
-      this.tiempoDescansoLargo = Math.max(1, this.tiempoDescansoLargo);
-
-      switch (this.faseActual) {
-        case "pomodoro":
-          this.temporizador = this.tiempoPomodoro * 60;
-          break;
-        case "descansoCorto":
-          this.temporizador = this.tiempoDescansoCorto * 60;
-          break;
-        case "descansoLargo":
-          this.temporizador = this.tiempoDescansoLargo * 60;
-          break;
-        default:
-          break;
-      }
-    },
-
-    // Guardar los cambios en los tiempos originales
-    guardarCambios() {
-      this.tiemposOriginales = {
-        tiempoPomodoro: this.tiempoPomodoro,
-        tiempoDescansoCorto: this.tiempoDescansoCorto,
-        tiempoDescansoLargo: this.tiempoDescansoLargo,
+    guardarDatos() {
+      const datos = {
+        pomodoros: this.pomodoros,
+        descansosCortos: this.descansosCortos,
+        descansosLargos: this.descansosLargos,
+        faseActual: this.faseActual,
+        temporizador: this.temporizador,
       };
-
-      // Actualizar el temporizador según la fase actual
-      this.actualizarTiempo();
+      localStorage.setItem("pomodoroDatos", JSON.stringify(datos));
     },
+
+    cargarDatos() {
+      const datos = JSON.parse(localStorage.getItem("pomodoroDatos"));
+      if (datos) {
+        this.pomodoros = datos.pomodoros;
+        this.descansosCortos = datos.descansosCortos;
+        this.descansosLargos = datos.descansosLargos;
+        this.faseActual = datos.faseActual;
+        this.temporizador = datos.temporizador;
+      }
+    },
+
+    // Método para borrar los datos guardados en localStorage
+    borrarDatos() {
+      localStorage.removeItem("pomodoroDatos");
+      this.pomodoros = 0;
+      this.descansosCortos = 0;
+      this.descansosLargos = 0;
+      this.faseActual = "pomodoro";
+      this.temporizador = TIEMPO_POMODORO;
+      this.guardarDatos(); // Guardar los datos vacíos después de borrar
+    },
+  },
+
+  mounted() {
+    this.cargarDatos();
   },
 });
 </script>
-
