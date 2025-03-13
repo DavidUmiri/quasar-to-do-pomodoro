@@ -1,36 +1,22 @@
 <template>
-  <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="bg-primary">
+  <q-layout view="lHh Lpr lFf" class="main-layout">
+    <q-header elevated class="bg-primary app-header">
       <q-toolbar>
+        <q-toolbar-title class="text-center">
+          <span class="text-shadow">Time To Do</span>
+          <q-badge color="accent" class="q-ml-sm app-version">v1.0</q-badge>
+        </q-toolbar-title>
+
         <q-btn
           flat
           dense
           round
-          icon="menu"
-          aria-label="Menu"
-          @click="toggleLeftDrawer"
+          icon="brightness_medium"
+          aria-label="Toggle Dark Mode"
+          @click="toggleDarkMode"
         />
-
-        <q-toolbar-title class="text-center">
-          Time To Do
-        </q-toolbar-title>
-
-        <!-- <div>Quasar v{{ $q.version }}</div> -->
       </q-toolbar>
     </q-header>
-
-    <!-- show-if-above para mostrar la barra lateral en pantalla grande -->
-    <q-drawer v-model="leftDrawerOpen" bordered>
-      <q-list>
-        <q-item-label header> David Umiri </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
-    </q-drawer>
 
     <q-page-container>
       <router-view />
@@ -39,50 +25,56 @@
 </template>
 
 <style lang="scss">
+.main-layout {
+  .app-header {
+    backdrop-filter: blur(10px);
+  }
 
+  .app-version {
+    font-size: 0.7rem;
+    vertical-align: top;
+  }
+}
+
+.body--dark {
+  .app-header {
+    background: rgba(30, 30, 30, 0.8) !important;
+  }
+}
 </style>
 
 <script>
-import { defineComponent, ref } from "vue";
-import EssentialLink from "components/EssentialLink.vue";
-
-const linksList = [
-  {
-    title: "Docs",
-    caption: "quasar.dev",
-    icon: "school",
-    link: "https://quasar.dev",
-  },
-  {
-    title: "Github",
-    caption: "github.com/DavidUmiri",
-    icon: "code",
-    link: "https://github.com/DavidUmiri",
-  },
-  // ,
-  // {
-  //   title: 'Quasar Awesome',
-  //   caption: 'Community Quasar projects',
-  //   icon: 'favorite',
-  //   link: 'https://awesome.quasar.dev'
-  // }
-];
+import { defineComponent, ref, watch } from "vue";
+import { useQuasar } from "quasar";
 
 export default defineComponent({
   name: "MainLayout",
 
-  components: {
-    EssentialLink,
-  },
-
   setup() {
-    const leftDrawerOpen = ref(false);
+    const $q = useQuasar();
+    const isDark = ref($q.dark.isActive);
+
+    watch(isDark, (val) => {
+      $q.dark.set(val);
+      localStorage.setItem("darkMode", val ? "1" : "0");
+    });
+
+    // Cargar preferencia de modo oscuro
+    const loadDarkModePreference = () => {
+      const darkPref = localStorage.getItem("darkMode");
+      if (darkPref !== null) {
+        isDark.value = darkPref === "1";
+        $q.dark.set(isDark.value);
+      }
+    };
+
+    // Cargar preferencias al inicio
+    loadDarkModePreference();
 
     return {
-      essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer() {
-        leftDrawerOpen.value = !leftDrawerOpen.value;
+      isDark,
+      toggleDarkMode() {
+        isDark.value = !isDark.value;
       },
     };
   },

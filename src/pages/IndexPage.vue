@@ -1,154 +1,112 @@
+<template>
+  <q-page padding class="app-page">
+    <div class="container-fluid">
+      <div class="row q-col-gutter-lg">
+        <!-- Columna del Pomodoro -->
+        <div class="col-12 col-lg-5 order-2 order-lg-1">
+          <transition appear enter-active-class="animated fadeInUp">
+            <div class="pomodoro-container q-mt-md q-mt-lg-none">
+              <PomodoroComponente />
+            </div>
+          </transition>
+        </div>
+
+        <!-- Columna de Tareas -->
+        <div class="col-12 col-lg-7 order-1 order-lg-2">
+          <transition appear enter-active-class="animated fadeInDown">
+            <div class="todo-container">
+              <ToDoComponente />
+            </div>
+          </transition>
+        </div>
+      </div>
+    </div>
+  </q-page>
+</template>
+
 <script>
+import { defineComponent } from "vue";
 import PomodoroComponente from "./Pomodoro.vue";
 import ToDoComponente from "./ToDo.vue";
 
-export default {
+export default defineComponent({
+  name: "IndexPage",
+
   components: {
     PomodoroComponente,
     ToDoComponente,
   },
-};
+
+  head() {
+    return {
+      title: "Time To Do - Mejora tu productividad",
+    };
+  },
+});
 </script>
-<template>
-  <div class="app-container">
-    <PomodoroComponente />
-    <ToDoComponente />
-  </div>
-</template>
 
 <style lang="scss">
-body {
-  font-family: "Arial", sans-serif;
-  // background-color: #f4f4f4;
-  box-sizing: border-box;
-  margin: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
+.app-page {
+  min-height: 100vh;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0));
 }
 
-.app-container {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  flex-direction: row;
-  flex-wrap: wrap;
-  max-height: 90vh;
-  width: 100%;
+.container-fluid {
+  max-width: 1600px;
+  margin: 0 auto;
+  padding: 1rem;
 }
 
-.todo-box {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: auto; 
-  max-height: 90vh;
+.pomodoro-container,
+.todo-container {
+  height: 100%;
 }
 
-.task-item-done {
-    text-decoration: line-through; 
-    color: rgba(128, 128, 128, 0.7); 
+/* Animaciones de entrada */
+.animated {
+  animation-duration: 0.6s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
   }
-
-.add-task-container {
-  margin-bottom: 20px;
-}
-
-.q-field--square .q-field__control {
-  width: 100vh;
-}
-
-.q-field {
-  width: 100%;
-  max-width: 400px;
-}
-
-.task-list {
-  width: 100%;
-  max-width: 400px;
-}
-
-.no-tasks {
-  text-align: center;
-  margin-top: 10px;
-  margin-bottom: 10px;
-  color: #777;
-}
-
-.pomodoro-box {
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  // background-color: #f8f8f8;
-}
-
-.info-container {
-  // margin-bottom: 20px;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-around;
-  flex-wrap: wrap;
-}
-
-.info-item {
-  margin-bottom: 10px;
-  color: #555;
-  text-align: center;
-  padding: 10px;
-  border-radius: 5px;
-  width: 100%;
-}
-
-.pomodoro-info {
-  background-color: $primary;
-  color: #fff;
-}
-
-.descanso-corto-info {
-  background-color: $primary;
-  color: #fff;
-}
-
-.descanso-largo-info {
-  background-color: $primary;
-  color: #fff;
-}
-
-.circle-label {
-  width: 200px;
-  height: 200px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 40px;
-  color: #fff;
-  background-color: $primary;
-  border-radius: 50%;
-}
-
-
-.button-container {
-  display: flex;
-  gap: 10px;
-}
-
-.action-button {
-  color: #fff;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-}
-
-@media screen and (max-width: 768px) {
-  .todo-box {
-  max-height: 40vh;
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
   }
 }
 
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.fadeInUp {
+  animation-name: fadeInUp;
+}
+
+.fadeInDown {
+  animation-name: fadeInDown;
+}
+
+/* Media queries para mejorar responsive */
+@media (max-width: 1199px) {
+  .pomodoro-container {
+    margin-top: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .container-fluid {
+    padding: 0.5rem;
+  }
+}
 </style>
